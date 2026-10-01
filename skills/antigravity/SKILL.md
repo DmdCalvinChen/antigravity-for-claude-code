@@ -50,12 +50,23 @@ Route each phase to the right model. This is the core policy.
 Routing tier within agy: `flash` (default, bulk) · `flash-lo` (cheapest, trivial) ·
 `pro` (harder reasoning / reviews / cross-checks).
 
+**⚙ Our remap — overrides upstream defaults.** Real-world testing found **Gemini 3.8 Flash
+and Gemini 3.1 Pro underperform**; **Gemini 3.7 Flash (High)** is the fastest, best default
+executor. agy quota is abundant, so **all three tiers are remapped to Gemini 3.7 Flash (High)** —
+`flash`, `flash-lo`, and `pro` all resolve to it. Configured via `CLAUDE_PLUGIN_OPTION_TIER_FLASH`
+/ `_TIER_FLASH_LO` / `_TIER_PRO` in the shell profile (local `~/.zshrc`, oracle `~/.bashrc`).
+The Claude conductor side is unchanged. Any `--tier` lands on 3.7 High; `--model` can still
+override explicitly.
+
 **agy is multi-model.** Tiers map to Gemini by default, but you can point delegation at any
 model `agy models` lists (Claude / GPT on plans that expose them) — via `--model <exact name>`,
 or persistently with the `default_model` / `tier_*` plugin options. Keep the executor a
 *different, cheaper* model than the Claude conductor: that's what yields the cost saving **and**
 the cross-model verification value (Claude executing Claude loses both).
 
+> **⚠ SUPERSEDED by the remap above — the 3.8 Flash / 3.1 Pro defaults and pricing notes
+> below are upstream history and no longer apply to our setup (all tiers → Gemini 3.7 Flash (High)).**
+>
 > **Model availability moves fast, and `--tier` needs agy ≥ 1.1.10.** Until 1.1.10, agy
 > **ignored `--model` and `--effort` in headless `-p`** — the flag was applied after model
 > configuration had initialised, so the run silently fell back to the persisted default.
